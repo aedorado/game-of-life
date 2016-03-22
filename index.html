@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Game of Life</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+
+	<style>
+
+		#container {
+			min-width: 1000px;
+		}
+
+		.row {
+			width: 100%;
+		}
+	
+		.left {
+			float: left
+		}
+
+		.right {
+			float: right;
+		}
+		
+		.controls button {
+			border: none;
+			color: white;
+			background-color: black;
+			width: 80px;
+			height: 20px;
+		}
+
+		.controls button:hover {
+			cursor: pointer;
+		}
+
+		.cell-small {
+			border: 1px solid red;
+			height: 12px;
+			width: 12px;
+		}
+
+		.cell-medium {
+			border: 1px solid red;
+			height: 10px;
+			width: 10px;
+		}
+
+		.cell-large {
+			border: 1px solid red;
+			height: 9px;
+			width: 9px;
+		}
+
+		#game-container {
+			position: relative;
+			margin-top: 32px;
+			border: 1px solid black;
+			width: 100%;
+		}
+
+/*		.small-board {
+			width: 600px;
+			height: 320px;
+			margin-left: 200px;
+		}
+
+		.medium-board {
+			width: 700px;
+			height: 500px;
+			margin-left: 150px;
+		}
+
+		.large-board {
+			width: 900px;
+			height: 720px;
+			margin-left: 50px;
+		}*/
+
+
+	</style>
+
+	<script src="react/react.js"></script>
+    <script src="react/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
+</head>
+<body>
+
+	<div class="row" id="container">
+		<div class="controls">
+			<span class="" id="controls-size">Size : 
+				<button id="controls-size-small">SMALL</button>
+				<button id="controls-size-med">MEDIUM</button>
+				<button id="controls-size-large">LARGE</button>
+			</span>
+			<span class="" id="controls-speed">Speed: 
+				<button id="controls-speed-fast">FAST</button>
+				<button id="controls-speed-med">MEDIUM</button>
+				<button id="controls-speed-slow">SLOW</button>
+			</span>
+		</div>
+
+		<div id="game-container">
+			
+		</div>
+	</div>
+
+
+</body>
+
+<script type="text/babel">
+
+	var SizeEnum = {
+		SMALL: 1,
+		MEDIUM: 2,
+		LARGE: 3
+	};
+
+	var SpeedEnum = {
+		SLOW: 1,
+		MEDIUM: 2,
+		FAST: 3
+	}
+
+	var size = SizeEnum.SMALL;
+	var speed = SpeedEnum.MEDIUM;
+
+	var Board = React.createClass({
+
+		componentWillMount: function() {
+			if (size == SizeEnum.SMALL) {
+				this.style = {
+					width: 600 + 'px',
+					height: 320 + 'px',
+					margin: 'auto',
+					border: '2px solid red'
+				}
+			} else if (size == SizeEnum.MEDIUM) {
+				this.style = {
+					width: 700 + 'px',
+					height: 500 + 'px',
+					margin: 'auto',
+					border: '2px solid red'
+				}
+			} else if (size == SizeEnum.FAST) {
+				this.style = {
+					width: 900 + 'px',
+					height: 720 + 'px',
+					margin: 'auto',
+					border: '2px solid red'
+				}
+			}
+		},
+
+		render: function() {
+			return (
+				<div style={this.style}>{this.props.text}</div>
+			)
+		}
+
+	});
+
+	
+	ReactDOM.render(<Board />, document.getElementById("game-container"));
+
+	// var MyComp = React.createClass({
+
+	// 	edit: function() {
+	// 		alert('Editing');
+	// 	},
+
+	// 	remove: function() {
+	// 		alert('Removing');
+	// 	},
+
+	// 	render: function() {
+	// 		return (
+	// 			<div>
+	// 				<h1>{this.props.text}</h1>
+	// 				<div className="red">{this.props.children}</div>
+	// 				<button onClick={this.edit}>Edit</button><br />
+	// 				<button onClick={this.remove}>Remove</button>
+	// 			</div>
+	// 		);
+	// 	}
+	// });
+
+
+
+	// var MyCheck = React.createClass({
+
+	// 	getInitialState: function() {
+	// 		return {checked: false}
+	// 	},
+
+	// 	handleCheck: function() {
+	// 		this.setState({
+	// 			checked: !this.state.checked
+	// 		})
+	// 	},
+
+	// 	render: function() {
+
+	// 		var msg;
+	// 		if (this.state.checked) {
+	// 			msg = "checked";
+	// 		} else {
+	// 			msg = "unchecked";
+	// 		}
+
+	// 		return (
+	// 			<div>
+	// 				<input type="checkbox" onChange={this.handleCheck} />
+	// 				<p>{msg}</p>
+	// 			</div>
+	// 		);
+	// 	}
+	// });
+
+
+	// ReactDOM.render(<MyCheck />, document.body)
+
+	// ReactDOM.render(<div>
+						// <MyComp text="Hello"> 1 </MyComp>
+						// <MyComp text="Whoa"> 2 </MyComp>
+					// </div>, document.body);
+
+</script>
+
+</html>
