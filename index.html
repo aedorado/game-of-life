@@ -8,7 +8,7 @@
 	<style>
 
 		#container {
-			min-width: 1000px;
+
 		}
 
 		.row {
@@ -60,24 +60,6 @@
 			width: 100%;
 		}
 
-/*		.small-board {
-			width: 600px;
-			height: 320px;
-			margin-left: 200px;
-		}
-
-		.medium-board {
-			width: 700px;
-			height: 500px;
-			margin-left: 150px;
-		}
-
-		.large-board {
-			width: 900px;
-			height: 720px;
-			margin-left: 50px;
-		}*/
-
 
 	</style>
 
@@ -123,27 +105,32 @@
 		FAST: 3
 	}
 
-	var size = SizeEnum.SMALL;
 	var speed = SpeedEnum.MEDIUM;
 
 	var Board = React.createClass({
 
+		getInitialState: function() {
+			return {
+				size: SizeEnum.MEDIUM
+			};
+		},
+
 		componentWillMount: function() {
-			if (size == SizeEnum.SMALL) {
+			if (this.state.size == SizeEnum.SMALL) {
 				this.style = {
 					width: 600 + 'px',
 					height: 320 + 'px',
 					margin: 'auto',
 					border: '2px solid red'
 				}
-			} else if (size == SizeEnum.MEDIUM) {
+			} else if (this.state.size == SizeEnum.MEDIUM) {
 				this.style = {
 					width: 700 + 'px',
 					height: 500 + 'px',
 					margin: 'auto',
 					border: '2px solid red'
 				}
-			} else if (size == SizeEnum.FAST) {
+			} else if (this.state.size == SizeEnum.LARGE) {
 				this.style = {
 					width: 900 + 'px',
 					height: 720 + 'px',
@@ -155,14 +142,30 @@
 
 		render: function() {
 			return (
-				<div style={this.style}>{this.props.text}</div>
+				<div style={this.style}></div>
 			)
 		}
 
 	});
 
-	
-	ReactDOM.render(<Board />, document.getElementById("game-container"));
+	var board = ReactDOM.render(<Board />, document.getElementById("game-container"));
+
+	document.getElementById("controls-size-small").onclick = changeBoardSize;
+	document.getElementById("controls-size-med").onclick = changeBoardSize;
+	document.getElementById("controls-size-large").onclick = changeBoardSize;
+
+	function changeBoardSize(event) {
+		var etid = event.target.id;
+		board.state.size = SizeEnum.SMALL;
+		console.log(etid);
+		if (etid == "controls-size-small") {
+		} else if (etid == "controls-size-med") {
+			board.state.size = SizeEnum.MEDIUM;
+		} else if (etid == "controls-size-small") {
+			board.state.size = SizeEnum.LARGE;
+		}
+
+	}
 
 	// var MyComp = React.createClass({
 
