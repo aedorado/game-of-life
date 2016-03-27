@@ -3,17 +3,12 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Game of Life</title>
-	<link rel="stylesheet" type="text/css" href="style.css">
 
 	<style>
 
 		#container {
 
 		}
-
-/*		.row {
-			width: 100%;
-		}*/
 	
 		.left {
 			float: left
@@ -37,16 +32,21 @@
 
 		.alive {
 			background-color: red;
-			border: red;
+			border: 1px solid #ddd;
+		}
+
+		.dead {
+			border: 1px solid #ddd;
 		}
 
 		.cell-standard {
-			border: 1px solid #ddd;
 			display: inline-block;
 			margin: 0px;
 			float: left;
-			height: 10px;
-			width: 10px;
+			height: 11px;
+			width: 11px;
+			border-left: 0px;
+			border-top: 0px;
 		}
 
 		.cell-small {
@@ -254,15 +254,40 @@
 
 	var Cell = React.createClass({
 
-		cellClicked: function() {
+		getInitialState: function() {
+			if (actionBoard[this.props.rowid][this.props.colid] == 1) {
+				return {
+					alive: true
+				};
+			} else {
+				return {
+					alive: false
+				};
+			}
+		},
 
+		cellClicked: function() {
+			if (this.state.alive) {
+				actionBoard[this.props.rowid][this.props.colid] = 0;
+				this.setState({
+					alive: false
+				});
+			} else {
+				actionBoard[this.props.rowid][this.props.colid] = 1;
+				this.setState({
+					alive: true
+				});
+			}
 		},
 
 		render: function() {
 			var className = "cell-standard";
 			if (actionBoard[this.props.rowid][this.props.colid] == 1) {
 				className += " alive";
+			} else {
+				className += " dead";
 			}
+
 			return (
 				<div className={className} onClick={this.cellClicked}></div>
 			)
