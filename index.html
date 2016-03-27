@@ -107,20 +107,20 @@
 <script type="text/babel">
 
 	var small = {
-			rows: 50,
-			cols: 30,
+			rows: 30,
+			cols: 50,
 			alive: 375
 		};
 
 	var med = {
-			rows: 60,
-			cols: 40,
+			rows: 40,
+			cols: 60,
 			alive: 600
 		};
 
 	var large = {
-			rows: 70,
-			cols: 50,
+			rows: 50,
+			cols: 70,
 			alive: 875
 		};
 
@@ -178,22 +178,22 @@
 	    var style = {};
 	    if (this.state.bsize === SizeEnum.SMALL) {
 	      style = {
-	        width: 600 + 'px',
 	        height: 360 + 'px',
+	        width: 600 + 'px',
 	        margin: 'auto',
 	        border: '2px solid red'
 	      }
 	    } else if (this.state.bsize === SizeEnum.MEDIUM) {
 	      style = {
-	        width: 720 + 'px',
 	        height: 480 + 'px',
+	        width: 720 + 'px',
 	        margin: 'auto',
 	        border: '2px solid red'
 	      }
 	    } else if (this.state.bsize === SizeEnum.LARGE) {
 	      style = {
-	        width: 840 + 'px',
 	        height: 600 + 'px',
+	        width: 840 + 'px',
 	        margin: 'auto',
 	        border: '2px solid red'
 	      }
@@ -222,7 +222,6 @@
 			var cells = [];
 			console.log(this.props.size);
 			console.log(this.state);
-			actionBoard = randomBoard();	console.log(actionBoard);
 			for (var i = 0; i < this.state.rows; i++) {
 				for (var j = 0; j < this.state.cols; j++) {
 					cells.push(<Cell rowid={i} colid={j} key={parseInt((i * 10) + '' + j)} />);
@@ -246,7 +245,7 @@
 			var className = "cell-standard";
 			if (actionBoard[this.props.rowid][this.props.colid] == 1) {
 				className += " alive";
-				// console.log('Alive @ ' + this.props.rowid + ',' + this.props.colid);
+				console.log('Alive @ ' + this.props.rowid + ',' + this.props.colid);
 			}
 			return (
 				<div className={className} onClick={this.cellClicked}></div>
@@ -259,18 +258,13 @@
 	}
 
 	function randomBoard() {
-		console.log(size);
 		var localboard = [];
-
 		for (var i = 0; i < sizeclass.rows; i++) {
 			localboard.push(Array.apply(null, Array(sizeclass.cols)).map(Number.prototype.valueOf, 0));
 		}
-
 		for (var i = 1; i <= sizeclass.alive; i++) {
 			localboard[randomUpto(sizeclass.rows)][randomUpto(sizeclass.cols)] = 1;
-			// localboard[r][c] = 1;
 		}
-
 		return localboard;
 	}
 
@@ -301,7 +295,11 @@
 		}
 
 
-		var newboard = actionBoard.slice();
+		var newboard = [];
+		for (var i = 0; i < sizeclass.rows; i++) {
+			newboard.push(Array.apply(null, Array(sizeclass.cols)).map(Number.prototype.valueOf, 0));
+		}
+
 		for (var i = 0; i < sizeclass.rows; i++) {
 			for (var j = 0; j < sizeclass.cols; j++) {
 				var nbours;
@@ -311,21 +309,26 @@
 
 				} else {
 					nbours = actionBoard[i - 1][j - 1] + actionBoard[i - 1][j] 	+ actionBoard[i - 1][j + 1] +
-							   actionBoard[i][j - 1] + 							+ 	actionBoard[i][j + 1] +
+							   actionBoard[i][j - 1] + 							 	actionBoard[i][j + 1] +
 							 actionBoard[i + 1][j - 1] + actionBoard[i + 1][j]	+ actionBoard[i + 1][j + 1];
+					// console.log(i, j, nbours);
+					// console.log(actionBoard[i - 1][j - 1] , actionBoard[i - 1][j] 	, actionBoard[i - 1][j + 1] ,
+							   // actionBoard[i][j - 1] , 							 	actionBoard[i][j + 1] ,
+							 // actionBoard[i + 1][j - 1] , actionBoard[i + 1][j]	, actionBoard[i + 1][j + 1]);
 				}
 
+				// console.log('before = ' + actionBoard[i][j]);
 				if (nbours <= 1 || nbours >= 4) {	// death by loneliness or overcrowding
 					newboard[i][j] = 0;
-				} else if (alive(i, j)) {
+				} else if (alive(i, j)) {	// stayin' alive
 					newboard[i][j] = 1;
-				} else if (!alive(i, j) && nbours == 3) {
+				} else if (!alive(i, j) && nbours == 3) {	// birth
 					newboard[i][j] = 1;
 				}
-
+				// console.log('after = ' + actionBoard[i][j], 'after newboard = ' + newboard[i][j]);
 			}
 		}
-
+		console.log(newboard);
 		return newboard;
 	}
 
@@ -334,7 +337,9 @@
 	ReactDOM.render(<Board />, document.getElementById("game-container"));
 
 	setInterval(function() {
+	// setTimeout(function() {
 		actionBoard = nextGen();
+		console.log(actionBoard);
 		ReactDOM.render(<Board />, document.getElementById("game-container"));
 	}, 1000);
 
