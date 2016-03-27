@@ -168,7 +168,7 @@
 	}
 
 	var speed = SpeedEnum.MEDIUM;
-	var size = SizeEnum.LARGE;
+	var size = SizeEnum.MEDIUM;
 	var sizeclass;
 	switch (size) {
 		case SizeEnum.LARGE:
@@ -203,43 +203,36 @@
 		console.log(speed);
 	}
 
+	document.getElementById("controls-size-small").addEventListener('click', changeBoardSize, false);
+	document.getElementById("controls-size-med").addEventListener('click', changeBoardSize, false);
+	document.getElementById("controls-size-large").addEventListener('click', changeBoardSize, false);
+
+	function changeBoardSize(e) {
+		clearInterval(t);
+		switch(e.target.id) {
+			case 'controls-size-small':
+				size = SizeEnum.SMALL;	// global vars
+				sizeclass = small;		// size & sizeclass
+				break;
+			case 'controls-size-med':
+				size = SizeEnum.MEDIUM;
+				sizeclass = med;
+				break;
+			case 'controls-size-large':
+				size = SizeEnum.LARGE;
+				sizeclass = large;
+				break;
+		}
+		ReactDOM.unmountComponentAtNode(document.getElementById("game-container"));
+		actionBoard = randomBoard();
+		ReactDOM.render(<Board />, document.getElementById("game-container"));
+		t = runGeneration();
+	}
+
 	var Board = React.createClass({
-		getInitialState: function() {
-			return {
-			  bsize: size	// global var size
-			};
-		},
-
-		changeBoardSize: function(e) {
-			switch(e.target.id) {
-				case 'controls-size-small':
-					size = SizeEnum.SMALL;	// global vars
-					sizeclass = small;		// size & sizeclass
-					break;
-				case 'controls-size-med':
-					size = SizeEnum.MEDIUM;
-					sizeclass = med;
-					break;
-				case 'controls-size-large':
-					size = SizeEnum.LARGE;
-					sizeclass = large;
-					break;
-			}
-			actionBoard = randomBoard();
-			this.setState({
-				bsize: size
-			});
-		},
-
-		componentDidMount: function() {
-			var that = this;
-			document.getElementById("controls-size-small").addEventListener('click', that.changeBoardSize, false);
-			document.getElementById("controls-size-med").addEventListener('click', that.changeBoardSize, false);
-			document.getElementById("controls-size-large").addEventListener('click', that.changeBoardSize, false);
-		},
 
 		render: function() {
-			return (<div className={"board " + sizeclass.className}><Cells size={this.state.bsize} /></div>);
+			return (<div className={"board " + sizeclass.className}><Cells /></div>);
 		}
 
 	});
@@ -274,7 +267,6 @@
 	var Cell = React.createClass({
 
 		getInitialState: function() {
-			console.log(this.props.rowid, this.props.colid);
 			if (actionBoard[this.props.rowid][this.props.colid] == 1) {
 				return {
 					alive: true
@@ -302,10 +294,15 @@
 
 		render: function() {
 			var className = "cell-standard";
-			if (actionBoard[this.props.rowid][this.props.colid] == 1) {
-				className += " alive";
-			} else {
-				className += " dead";
+			try {			
+				if (actionBoard[this.props.rowid][this.props.colid] == 1) {
+					className += " alive";
+				} else {
+					className += " dead";
+				}
+			} catch (err) {
+
+				console.log(err.message);
 			}
 
 			return (
@@ -374,7 +371,6 @@
 							 actionBoard[i + 1][j - 1] + actionBoard[i + 1][j]	+ actionBoard[i + 1][j + 1];
 				}
 
-				// console.log('before = ' + actionBoard[i][j]);
 				if (nbours <= 1 || nbours >= 4) {	// death by loneliness or overcrowding
 					newboard[i][j] = 0;
 				} else if (alive(i, j)) {	// stayin' alive
@@ -382,15 +378,12 @@
 				} else if (!alive(i, j) && nbours == 3) {	// birth
 					newboard[i][j] = 1;
 				}
-				// console.log('after = ' + actionBoard[i][j], 'after newboard = ' + newboard[i][j]);
 			}
 		}
-		// console.log(newboard);
 		return newboard;
 	}
 
 	var actionBoard = randomBoard();
-
 	ReactDOM.render(<Board />, document.getElementById("game-container"));
 
 	var t;
