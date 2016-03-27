@@ -36,7 +36,7 @@
 		}
 
 		.alive {
-			background-color: #ddd;
+			background-color: red;
 		}
 
 		.cell-standard {
@@ -138,6 +138,7 @@
 
 	var speed = SpeedEnum.MEDIUM;
 	var size = SizeEnum.MEDIUM;
+	var sizeclass = med;
 
 	var Board = React.createClass({
 		getInitialState: function() {
@@ -149,13 +150,16 @@
 		changeBoardSize: function(e) {
 			switch(e.target.id) {
 				case 'controls-size-small':
-					size = SizeEnum.SMALL;
+					size = SizeEnum.SMALL;	// global vars
+					sizeclass = small;		// size & sizeclass
 					break;
 				case 'controls-size-med':
 					size = SizeEnum.MEDIUM;
+					sizeclass = med;
 					break;
 				case 'controls-size-large':
 					size = SizeEnum.LARGE;
+					sizeclass = large;
 					break;
 			}
 			this.setState({
@@ -239,8 +243,13 @@
 		},
 
 		render: function() {
+			var className = "cell-standard";
+			if (actionBoard[this.props.rowid][this.props.colid] == 1) {
+				className += " alive";
+				// console.log('Alive @ ' + this.props.rowid + ',' + this.props.colid);
+			}
 			return (
-				<div className="cell-standard" onClick={this.cellClicked}></div>
+				<div className={className} onClick={this.cellClicked}></div>
 			)
 		}
 	});
@@ -252,23 +261,9 @@
 	function randomBoard() {
 		console.log(size);
 		var localboard = [];
-		var sizeclass;
-		if (size === SizeEnum.SMALL) {
-			for (var i = 0; i < small.rows; i++) {
-				localboard.push(Array.apply(null, Array(small.cols)).map(Number.prototype.valueOf, 0));
-			}
-			sizeclass = small;
-		} else if (size === SizeEnum.MEDIUM) {
-			for (var i = 0; i < med.rows; i++) {
-				localboard.push(Array.apply(null, Array(med.cols)).map(Number.prototype.valueOf, 0));
-			}
-			sizeclass = med;
-		} else if (size === SizeEnum.LARGE) {
-			for (var i = 0; i < large.rows; i++) {
-				localboard.push(Array.apply(null, Array(large.cols)).map(Number.prototype.valueOf, 0));
-			}
-			alive = large.alive;
-			sizeclass = large;
+
+		for (var i = 0; i < sizeclass.rows; i++) {
+			localboard.push(Array.apply(null, Array(sizeclass.cols)).map(Number.prototype.valueOf, 0));
 		}
 
 		for (var i = 1; i <= sizeclass.alive; i++) {
@@ -279,10 +274,69 @@
 		return localboard;
 	}
 
+	function nextGen() {
+
+		function edgecell(x, y) {
+			if (x == 0 && y == 0) {
+				return true;
+			} else if (x == 0 && y == (sizeclass.cols - 1)) {
+				return true;
+			} else if (x == (sizeclass.rows - 1) && y == 0) {
+				return true;
+			} else if (x == (sizeclass.rows - 1) && y == (sizeclass.cols - 1)) {
+				return true;
+			}
+			return false;
+		}
+
+		function cornercell(x, y) {
+			if (x == 0 || y == 0 || x == (sizeclass.rows - 1) || y == (sizeclass.cols - 1)) {
+				return true;
+			}
+			return false;
+		}
+
+		function alive(x, y) {
+			return (actionBoard[x][y] == 1);
+		}
+
+
+		var newboard = actionBoard.slice();
+		for (var i = 0; i < sizeclass.rows; i++) {
+			for (var j = 0; j < sizeclass.cols; j++) {
+				var nbours;
+				if (cornercell(i, j)) {
+
+				} else if (edgecell(i, j)) {
+
+				} else {
+					nbours = actionBoard[i - 1][j - 1] + actionBoard[i - 1][j] 	+ actionBoard[i - 1][j + 1] +
+							   actionBoard[i][j - 1] + 							+ 	actionBoard[i][j + 1] +
+							 actionBoard[i + 1][j - 1] + actionBoard[i + 1][j]	+ actionBoard[i + 1][j + 1];
+				}
+
+				if (nbours <= 1 || nbours >= 4) {	// death by loneliness or overcrowding
+					newboard[i][j] = 0;
+				} else if (alive(i, j)) {
+					newboard[i][j] = 1;
+				} else if (!alive(i, j) && nbours == 3) {
+					newboard[i][j] = 1;
+				}
+
+			}
+		}
+
+		return newboard;
+	}
+
 	var actionBoard = randomBoard();
 
 	ReactDOM.render(<Board />, document.getElementById("game-container"));
 
+	setInterval(function() {
+		actionBoard = nextGen();
+		ReactDOM.render(<Board />, document.getElementById("game-container"));
+	}, 1000);
 
 </script>
 
