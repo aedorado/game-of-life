@@ -6,8 +6,14 @@
 
 	<style>
 
-		#container {
+		body {
+			background-image: radial-gradient(#c44, #111);
+			font-family: Tahoma;
+		}
 
+		h2 {
+			color: white;
+			text-align: center;
 		}
 	
 		.left {
@@ -20,6 +26,7 @@
 		
 		.controls button {
 			border: none;
+			border-radius: 4px;
 			color: white;
 			background-color: black;
 			width: 80px;
@@ -32,11 +39,11 @@
 
 		.alive {
 			background-color: red;
-			border: 1px solid #ddd;
+			border: 1px solid #777;
 		}
 
 		.dead {
-			border: 1px solid #ddd;
+			border: 1px solid #777;
 		}
 
 		.cell-standard {
@@ -49,31 +56,50 @@
 			border-top: 0px;
 		}
 
-		.cell-small {
-			border: 1px solid red;
-			height: 12px;
-			width: 12px;
-		}
-
-		.cell-medium {
-			border: 1px solid red;
-			height: 10px;
-			width: 10px;
-		}
-
-		.cell-large {
-			border: 1px solid red;
-			height: 9px;
-			width: 9px;
-		}
-
 		#game-container {
 			position: relative;
 			margin-top: 32px;
+			/*background-color: black;*/
 			/*border: 1px solid black;*/
 			width: 100%;
 		}
 
+		.board {
+			margin: auto;
+			border-radius: 6px;
+			box-shadow: 4px 4px 4px #444;
+	        border: 6px solid #777;
+			background-color: black;
+		}
+
+		.small-board {
+		    height: 360px;
+	        width: 600px;
+		}
+
+		.med-board {
+		    height: 480px;
+	        width: 720px;
+		}
+
+		.large-board {
+		    height: 600px;
+	        width: 840px;
+		}
+
+		.controls {
+			position: relative;
+			text-align: center;
+			margin-top: 40px;
+		}
+
+		.controls-div {
+			margin: 5px;
+		}
+
+		.btn-active {
+			border: 2px solid yellow;
+		}
 
 	</style>
 
@@ -84,21 +110,22 @@
 <body>
 
 	<div class="row" id="container">
+		
+		<h2>GAME OF LIFE</h2>
+
+		<div id="game-container"></div>
+
 		<div class="controls">
-			<span class="" id="controls-size">Size : 
+			<div class="controls-div" id="controls-size">
 				<button class="control-size-button" id="controls-size-small">SMALL</button>
 				<button class="control-size-button" id="controls-size-med">MEDIUM</button>
 				<button class="control-size-button" id="controls-size-large">LARGE</button>
-			</span>
-			<span class="" id="controls-speed">Speed: 
+			</div>
+			<div class="controls-div" id="controls-speed">
 				<button class="control-speed-button" id="controls-speed-fast">FAST</button>
 				<button class="control-speed-button" id="controls-speed-med">MEDIUM</button>
 				<button class="control-speed-button" id="controls-speed-slow">SLOW</button>
-			</span>
-		</div>
-
-		<div id="game-container">
-			
+			</div>
 		</div>
 	</div>
 
@@ -110,19 +137,22 @@
 	var small = {
 			rows: 30,
 			cols: 50,
-			alive: 375
+			alive: 375,
+			className: 'small-board'
 		};
 
 	var med = {
 			rows: 40,
 			cols: 60,
-			alive: 600
+			alive: 600,
+			className: 'med-board'
 		};
 
 	var large = {
 			rows: 50,
 			cols: 70,
-			alive: 875
+			alive: 875,
+			className: 'large-board'
 		};
 
 	var SizeEnum = {
@@ -138,8 +168,19 @@
 	}
 
 	var speed = SpeedEnum.MEDIUM;
-	var size = SizeEnum.MEDIUM;
-	var sizeclass = med;
+	var size = SizeEnum.LARGE;
+	var sizeclass;
+	switch (size) {
+		case SizeEnum.LARGE:
+			sizeclass = large;
+			break;
+		case SizeEnum.MEDIUM:
+			sizeclass = med;
+			break;
+		case SizeEnum.SMALL:
+			sizeclass = small;
+			break;
+	}
 
 
 	document.getElementById("controls-speed-slow").addEventListener('click', changeSpeed, false);
@@ -147,6 +188,7 @@
 	document.getElementById("controls-speed-fast").addEventListener('click', changeSpeed, false);
 
 	function changeSpeed(e) {
+		this.className += ' active';
 		switch (e.target.id) {
 			case 'controls-speed-fast':
 				speed = SpeedEnum.FAST;
@@ -183,57 +225,34 @@
 					sizeclass = large;
 					break;
 			}
+			actionBoard = randomBoard();
 			this.setState({
 				bsize: size
 			});
 		},
 
-	  componentDidMount: function() {
-	    var that = this;
-	    document.getElementById("controls-size-small").addEventListener('click', that.changeBoardSize, false);
-	    document.getElementById("controls-size-med").addEventListener('click', that.changeBoardSize, false);
-	    document.getElementById("controls-size-large").addEventListener('click', that.changeBoardSize, false);
-	  },
+		componentDidMount: function() {
+			var that = this;
+			document.getElementById("controls-size-small").addEventListener('click', that.changeBoardSize, false);
+			document.getElementById("controls-size-med").addEventListener('click', that.changeBoardSize, false);
+			document.getElementById("controls-size-large").addEventListener('click', that.changeBoardSize, false);
+		},
 
-	  render: function() {
-	    var style = {};
-	    if (this.state.bsize === SizeEnum.SMALL) {
-	      style = {
-	        height: 360 + 'px',
-	        width: 600 + 'px',
-	        margin: 'auto',
-	        border: '2px solid #ddd'
-	      }
-	    } else if (this.state.bsize === SizeEnum.MEDIUM) {
-	      style = {
-	        height: 480 + 'px',
-	        width: 720 + 'px',
-	        margin: 'auto',
-	        border: '2px solid #ddd'
-	      }
-	    } else if (this.state.bsize === SizeEnum.LARGE) {
-	      style = {
-	        height: 600 + 'px',
-	        width: 840 + 'px',
-	        margin: 'auto',
-	        border: '2px solid #ddd'
-	      }
-	    }
-	    return (<div style={style}><Cells size={this.state.bsize} /></div>);
-	  }
+		render: function() {
+			return (<div className={"board " + sizeclass.className}><Cells size={this.state.bsize} /></div>);
+		}
+
 	});
 
 	var Cells = React.createClass({
 
 		getInitialState: function() {
-			if (this.props.size === SizeEnum.SMALL) {
+			if (size === SizeEnum.SMALL) {
 				return small;	// global var
-			} else if (this.props.size === SizeEnum.MEDIUM) {
+			} else if (size === SizeEnum.MEDIUM) {
 				return med;		// global var
-			} else if (this.props.size === SizeEnum.LARGE) {
+			} else if (size === SizeEnum.LARGE) {
 				return large;	// global var
-			} else {
-				return null;
 			}
 		},
 
@@ -255,6 +274,7 @@
 	var Cell = React.createClass({
 
 		getInitialState: function() {
+			console.log(this.props.rowid, this.props.colid);
 			if (actionBoard[this.props.rowid][this.props.colid] == 1) {
 				return {
 					alive: true
@@ -352,10 +372,6 @@
 					nbours = actionBoard[i - 1][j - 1] + actionBoard[i - 1][j] 	+ actionBoard[i - 1][j + 1] +
 							   actionBoard[i][j - 1] + 							 	actionBoard[i][j + 1] +
 							 actionBoard[i + 1][j - 1] + actionBoard[i + 1][j]	+ actionBoard[i + 1][j + 1];
-					// console.log(i, j, nbours);
-					// console.log(actionBoard[i - 1][j - 1] , actionBoard[i - 1][j] 	, actionBoard[i - 1][j + 1] ,
-							   // actionBoard[i][j - 1] , 							 	actionBoard[i][j + 1] ,
-							 // actionBoard[i + 1][j - 1] , actionBoard[i + 1][j]	, actionBoard[i + 1][j + 1]);
 				}
 
 				// console.log('before = ' + actionBoard[i][j]);
