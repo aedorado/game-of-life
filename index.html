@@ -37,6 +37,7 @@
 
 		.alive {
 			background-color: red;
+			border: red;
 		}
 
 		.cell-standard {
@@ -85,14 +86,14 @@
 	<div class="row" id="container">
 		<div class="controls">
 			<span class="" id="controls-size">Size : 
-				<button id="controls-size-small">SMALL</button>
-				<button id="controls-size-med">MEDIUM</button>
-				<button id="controls-size-large">LARGE</button>
+				<button class="control-size-button" id="controls-size-small">SMALL</button>
+				<button class="control-size-button" id="controls-size-med">MEDIUM</button>
+				<button class="control-size-button" id="controls-size-large">LARGE</button>
 			</span>
 			<span class="" id="controls-speed">Speed: 
-				<button id="controls-speed-fast">FAST</button>
-				<button id="controls-speed-med">MEDIUM</button>
-				<button id="controls-speed-slow">SLOW</button>
+				<button class="control-speed-button" id="controls-speed-fast">FAST</button>
+				<button class="control-speed-button" id="controls-speed-med">MEDIUM</button>
+				<button class="control-speed-button" id="controls-speed-slow">SLOW</button>
 			</span>
 		</div>
 
@@ -131,14 +132,34 @@
 	};
 
 	var SpeedEnum = {
-		SLOW: 1,
-		MEDIUM: 2,
-		FAST: 3
+		SLOW: 1000,
+		MEDIUM: 350,
+		FAST: 150
 	}
 
 	var speed = SpeedEnum.MEDIUM;
 	var size = SizeEnum.MEDIUM;
 	var sizeclass = med;
+
+
+	document.getElementById("controls-speed-slow").addEventListener('click', changeSpeed, false);
+	document.getElementById("controls-speed-med").addEventListener('click', changeSpeed, false);
+	document.getElementById("controls-speed-fast").addEventListener('click', changeSpeed, false);
+
+	function changeSpeed(e) {
+		switch (e.target.id) {
+			case 'controls-speed-fast':
+				speed = SpeedEnum.FAST;
+				break;
+			case 'controls-speed-med':
+				speed = SpeedEnum.MEDIUM;
+				break;
+			case 'controls-speed-slow':
+				speed = SpeedEnum.SLOW;
+				break;
+		}
+		console.log(speed);
+	}
 
 	var Board = React.createClass({
 		getInitialState: function() {
@@ -181,24 +202,23 @@
 	        height: 360 + 'px',
 	        width: 600 + 'px',
 	        margin: 'auto',
-	        border: '2px solid red'
+	        border: '2px solid #ddd'
 	      }
 	    } else if (this.state.bsize === SizeEnum.MEDIUM) {
 	      style = {
 	        height: 480 + 'px',
 	        width: 720 + 'px',
 	        margin: 'auto',
-	        border: '2px solid red'
+	        border: '2px solid #ddd'
 	      }
 	    } else if (this.state.bsize === SizeEnum.LARGE) {
 	      style = {
 	        height: 600 + 'px',
 	        width: 840 + 'px',
 	        margin: 'auto',
-	        border: '2px solid red'
+	        border: '2px solid #ddd'
 	      }
 	    }
-	    console.log(this.state.bsize);
 	    return (<div style={style}><Cells size={this.state.bsize} /></div>);
 	  }
 	});
@@ -206,7 +226,6 @@
 	var Cells = React.createClass({
 
 		getInitialState: function() {
-			console.log('cells initial ' + this.props.size);
 			if (this.props.size === SizeEnum.SMALL) {
 				return small;	// global var
 			} else if (this.props.size === SizeEnum.MEDIUM) {
@@ -220,8 +239,6 @@
 
 		render: function() {
 			var cells = [];
-			console.log(this.props.size);
-			console.log(this.state);
 			for (var i = 0; i < this.state.rows; i++) {
 				for (var j = 0; j < this.state.cols; j++) {
 					cells.push(<Cell rowid={i} colid={j} key={parseInt((i * 10) + '' + j)} />);
@@ -245,7 +262,6 @@
 			var className = "cell-standard";
 			if (actionBoard[this.props.rowid][this.props.colid] == 1) {
 				className += " alive";
-				console.log('Alive @ ' + this.props.rowid + ',' + this.props.colid);
 			}
 			return (
 				<div className={className} onClick={this.cellClicked}></div>
@@ -328,7 +344,7 @@
 				// console.log('after = ' + actionBoard[i][j], 'after newboard = ' + newboard[i][j]);
 			}
 		}
-		console.log(newboard);
+		// console.log(newboard);
 		return newboard;
 	}
 
@@ -336,12 +352,16 @@
 
 	ReactDOM.render(<Board />, document.getElementById("game-container"));
 
-	setInterval(function() {
-	// setTimeout(function() {
-		actionBoard = nextGen();
-		console.log(actionBoard);
-		ReactDOM.render(<Board />, document.getElementById("game-container"));
-	}, 1000);
+	var t;
+	function runGeneration() {
+		t = setTimeout(function() {
+				actionBoard = nextGen();
+				ReactDOM.render(<Board />, document.getElementById("game-container"));
+				runGeneration();
+			}, speed);
+	}
+
+	runGeneration();
 
 </script>
 
