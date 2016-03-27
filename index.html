@@ -11,9 +11,9 @@
 
 		}
 
-		.row {
+/*		.row {
 			width: 100%;
-		}
+		}*/
 	
 		.left {
 			float: left
@@ -33,6 +33,19 @@
 
 		.controls button:hover {
 			cursor: pointer;
+		}
+
+		.alive {
+			background-color: #ddd;
+		}
+
+		.cell-standard {
+			border: 1px solid #ddd;
+			display: inline-block;
+			margin: 0px;
+			float: left;
+			height: 10px;
+			width: 10px;
 		}
 
 		.cell-small {
@@ -56,7 +69,7 @@
 		#game-container {
 			position: relative;
 			margin-top: 32px;
-			border: 1px solid black;
+			/*border: 1px solid black;*/
 			width: 100%;
 		}
 
@@ -93,10 +106,28 @@
 
 <script type="text/babel">
 
+	var small = {
+			rows: 50,
+			cols: 30,
+			alive: 375
+		};
+
+	var med = {
+			rows: 60,
+			cols: 40,
+			alive: 600
+		};
+
+	var large = {
+			rows: 70,
+			cols: 50,
+			alive: 875
+		};
+
 	var SizeEnum = {
-		SMALL: 1,
-		MEDIUM: 2,
-		LARGE: 3
+		SMALL: 's',
+		MEDIUM: 'm',
+		LARGE: 'l'
 	};
 
 	var SpeedEnum = {
@@ -106,128 +137,152 @@
 	}
 
 	var speed = SpeedEnum.MEDIUM;
+	var size = SizeEnum.MEDIUM;
 
 	var Board = React.createClass({
-
 		getInitialState: function() {
 			return {
-				size: SizeEnum.MEDIUM
+			  bsize: size	// global var size
 			};
 		},
 
-		componentWillMount: function() {
-			if (this.state.size == SizeEnum.SMALL) {
-				this.style = {
-					width: 600 + 'px',
-					height: 320 + 'px',
-					margin: 'auto',
-					border: '2px solid red'
-				}
-			} else if (this.state.size == SizeEnum.MEDIUM) {
-				this.style = {
-					width: 700 + 'px',
-					height: 500 + 'px',
-					margin: 'auto',
-					border: '2px solid red'
-				}
-			} else if (this.state.size == SizeEnum.LARGE) {
-				this.style = {
-					width: 900 + 'px',
-					height: 720 + 'px',
-					margin: 'auto',
-					border: '2px solid red'
-				}
+		changeBoardSize: function(e) {
+			switch(e.target.id) {
+				case 'controls-size-small':
+					size = SizeEnum.SMALL;
+					break;
+				case 'controls-size-med':
+					size = SizeEnum.MEDIUM;
+					break;
+				case 'controls-size-large':
+					size = SizeEnum.LARGE;
+					break;
+			}
+			this.setState({
+				bsize: size
+			});
+		},
+
+	  componentDidMount: function() {
+	    var that = this;
+	    document.getElementById("controls-size-small").addEventListener('click', that.changeBoardSize, false);
+	    document.getElementById("controls-size-med").addEventListener('click', that.changeBoardSize, false);
+	    document.getElementById("controls-size-large").addEventListener('click', that.changeBoardSize, false);
+	  },
+
+	  render: function() {
+	    var style = {};
+	    if (this.state.bsize === SizeEnum.SMALL) {
+	      style = {
+	        width: 600 + 'px',
+	        height: 360 + 'px',
+	        margin: 'auto',
+	        border: '2px solid red'
+	      }
+	    } else if (this.state.bsize === SizeEnum.MEDIUM) {
+	      style = {
+	        width: 720 + 'px',
+	        height: 480 + 'px',
+	        margin: 'auto',
+	        border: '2px solid red'
+	      }
+	    } else if (this.state.bsize === SizeEnum.LARGE) {
+	      style = {
+	        width: 840 + 'px',
+	        height: 600 + 'px',
+	        margin: 'auto',
+	        border: '2px solid red'
+	      }
+	    }
+	    console.log(this.state.bsize);
+	    return (<div style={style}><Cells size={this.state.bsize} /></div>);
+	  }
+	});
+
+	var Cells = React.createClass({
+
+		getInitialState: function() {
+			console.log('cells initial ' + this.props.size);
+			if (this.props.size === SizeEnum.SMALL) {
+				return small;	// global var
+			} else if (this.props.size === SizeEnum.MEDIUM) {
+				return med;		// global var
+			} else if (this.props.size === SizeEnum.LARGE) {
+				return large;	// global var
+			} else {
+				return null;
 			}
 		},
 
 		render: function() {
-			return (
-				<div style={this.style}></div>
-			)
-		}
+			var cells = [];
+			console.log(this.props.size);
+			console.log(this.state);
+			actionBoard = randomBoard();	console.log(actionBoard);
+			for (var i = 0; i < this.state.rows; i++) {
+				for (var j = 0; j < this.state.cols; j++) {
+					cells.push(<Cell rowid={i} colid={j} key={parseInt((i * 10) + '' + j)} />);
+				}
+			}
 
+			return (
+				<div>{cells}</div>
+			);
+
+		}
 	});
 
-	var board = ReactDOM.render(<Board />, document.getElementById("game-container"));
+	var Cell = React.createClass({
 
-	document.getElementById("controls-size-small").onclick = changeBoardSize;
-	document.getElementById("controls-size-med").onclick = changeBoardSize;
-	document.getElementById("controls-size-large").onclick = changeBoardSize;
+		cellClicked: function() {
 
-	function changeBoardSize(event) {
-		var etid = event.target.id;
-		board.state.size = SizeEnum.SMALL;
-		console.log(etid);
-		if (etid == "controls-size-small") {
-		} else if (etid == "controls-size-med") {
-			board.state.size = SizeEnum.MEDIUM;
-		} else if (etid == "controls-size-small") {
-			board.state.size = SizeEnum.LARGE;
+		},
+
+		render: function() {
+			return (
+				<div className="cell-standard" onClick={this.cellClicked}></div>
+			)
 		}
+	});
 
+	function randomUpto(max) {
+		return Math.ceil(Math.random() * (max - 1));
 	}
 
-	// var MyComp = React.createClass({
+	function randomBoard() {
+		console.log(size);
+		var localboard = [];
+		var sizeclass;
+		if (size === SizeEnum.SMALL) {
+			for (var i = 0; i < small.rows; i++) {
+				localboard.push(Array.apply(null, Array(small.cols)).map(Number.prototype.valueOf, 0));
+			}
+			sizeclass = small;
+		} else if (size === SizeEnum.MEDIUM) {
+			for (var i = 0; i < med.rows; i++) {
+				localboard.push(Array.apply(null, Array(med.cols)).map(Number.prototype.valueOf, 0));
+			}
+			sizeclass = med;
+		} else if (size === SizeEnum.LARGE) {
+			for (var i = 0; i < large.rows; i++) {
+				localboard.push(Array.apply(null, Array(large.cols)).map(Number.prototype.valueOf, 0));
+			}
+			alive = large.alive;
+			sizeclass = large;
+		}
 
-	// 	edit: function() {
-	// 		alert('Editing');
-	// 	},
+		for (var i = 1; i <= sizeclass.alive; i++) {
+			localboard[randomUpto(sizeclass.rows)][randomUpto(sizeclass.cols)] = 1;
+			// localboard[r][c] = 1;
+		}
 
-	// 	remove: function() {
-	// 		alert('Removing');
-	// 	},
+		return localboard;
+	}
 
-	// 	render: function() {
-	// 		return (
-	// 			<div>
-	// 				<h1>{this.props.text}</h1>
-	// 				<div className="red">{this.props.children}</div>
-	// 				<button onClick={this.edit}>Edit</button><br />
-	// 				<button onClick={this.remove}>Remove</button>
-	// 			</div>
-	// 		);
-	// 	}
-	// });
+	var actionBoard = randomBoard();
 
+	ReactDOM.render(<Board />, document.getElementById("game-container"));
 
-
-	// var MyCheck = React.createClass({
-
-	// 	getInitialState: function() {
-	// 		return {checked: false}
-	// 	},
-
-	// 	handleCheck: function() {
-	// 		this.setState({
-	// 			checked: !this.state.checked
-	// 		})
-	// 	},
-
-	// 	render: function() {
-
-	// 		var msg;
-	// 		if (this.state.checked) {
-	// 			msg = "checked";
-	// 		} else {
-	// 			msg = "unchecked";
-	// 		}
-
-	// 		return (
-	// 			<div>
-	// 				<input type="checkbox" onChange={this.handleCheck} />
-	// 				<p>{msg}</p>
-	// 			</div>
-	// 		);
-	// 	}
-	// });
-
-
-	// ReactDOM.render(<MyCheck />, document.body)
-
-	// ReactDOM.render(<div>
-						// <MyComp text="Hello"> 1 </MyComp>
-						// <MyComp text="Whoa"> 2 </MyComp>
-					// </div>, document.body);
 
 </script>
 
