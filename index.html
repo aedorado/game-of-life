@@ -38,7 +38,7 @@
 		}
 
 		.alive {
-			background-color: red;
+			background-color: #E4F1FE;
 			border: 1px solid #777;
 		}
 
@@ -67,7 +67,7 @@
 		.board {
 			margin: auto;
 			border-radius: 6px;
-			box-shadow: 4px 4px 4px #444;
+			box-shadow: 0px 0px 6px #ccc;
 	        border: 6px solid #777;
 			background-color: black;
 		}
@@ -188,7 +188,8 @@
 	document.getElementById("controls-speed-fast").addEventListener('click', changeSpeed, false);
 
 	function changeSpeed(e) {
-		this.className += ' active';
+		this.className += ' btn-active';
+		console.log(this.className)
 		switch (e.target.id) {
 			case 'controls-speed-fast':
 				speed = SpeedEnum.FAST;
@@ -200,7 +201,6 @@
 				speed = SpeedEnum.SLOW;
 				break;
 		}
-		console.log(speed);
 	}
 
 	document.getElementById("controls-size-small").addEventListener('click', changeBoardSize, false);
