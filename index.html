@@ -328,8 +328,11 @@
 
 	function nextGen() {
 
-		function edgecell(x, y) {
+		function cornercell(x, y) {
 			if (x == 0 && y == 0) {
+				// return actionBoard[sizeclass.rows - 1][sizeclass.cols - 1] + actionBoard[sizeclass.rows - 1][0] + actionBoard[sizeclass.rows - 1][1] + 
+						// actionBoard[0][sizeclass.cols - 1] + 					actionBoard[0][1] + 
+						// actionBoard[1][sizeclass.cols - 1] + actionBoard[1][0] + actionBoard[1][1];
 				return true;
 			} else if (x == 0 && y == (sizeclass.cols - 1)) {
 				return true;
@@ -341,7 +344,7 @@
 			return false;
 		}
 
-		function cornercell(x, y) {
+		function edgecell(x, y) {
 			if (x == 0 || y == 0 || x == (sizeclass.rows - 1) || y == (sizeclass.cols - 1)) {
 				return true;
 			}
@@ -362,10 +365,42 @@
 			for (var j = 0; j < sizeclass.cols; j++) {
 				var nbours;
 				if (cornercell(i, j)) {
-
+					if (i == 0 && j == 0) {
+						nbours = actionBoard[sizeclass.rows - 1][sizeclass.cols - 1] + actionBoard[sizeclass.rows - 1][0] + actionBoard[sizeclass.rows - 1][1] +
+									actionBoard[0][sizeclass.cols - 1] + 			actionBoard[0][1] +
+								actionBoard[1][sizeclass.cols - 1] + actionBoard[1][0] + actionBoard[1][1];
+					} else if (i == 0 && j == (sizeclass.cols - 1)) {
+						nbours = actionBoard[sizeclass.rows - 1][j - 1] + actionBoard[sizeclass.rows - 1][j] + actionBoard[sizeclass.rows - 1][0] + 
+									actionBoard[0][j - 1] 				+ actionBoard[0][0]
+								+ actionBoard[1][j - 1] + actionBoard[1][j] + actionBoard[1][0];
+					} else if (i == (sizeclass.rows - 1) && j == 0) {
+						nbours = actionBoard[i - 1][sizeclass.cols - 1] + actionBoard[i - 1][0] + actionBoard[i - 1][1]
+								+ actionBoard[i][sizeclass.cols - 1] + actionBoard[i][1]
+								+ actionBoard[0][sizeclass.cols - 1] + actionBoard[0][0] + actionBoard[0][1];
+					} else if (i == (sizeclass.rows - 1) && j == (sizeclass.cols - 1)) {
+						nbours = actionBoard[i - 1][j - 1] + actionBoard[i - 1][j] + actionBoard[i - 1][0]
+								+ actionBoard[i][j - 1] + actionBoard[i][0] +
+								actionBoard[0][j - 1] + actionBoard[0][j] + actionBoard[0][0];
+					}
 				} else if (edgecell(i, j)) {
-
-				} else {
+					if (i == 0) {	// upper boundry
+						nbours = actionBoard[sizeclass.rows - 1][j - 1] + actionBoard[sizeclass.rows - 1][j] + actionBoard[sizeclass.rows - 1][j + 1] +
+									actionBoard[0][j - 1] + 				actionBoard[0][j + 1] + 
+								 actionBoard[1][j - 1] + actionBoard[1][j] + actionBoard[1][j + 1];
+					} else if (j == 0) {	// left boundry
+						nbours = actionBoard[i - 1][sizeclass.cols - 1] + actionBoard[i - 1][0] + actionBoard[i - 1][1] +
+									actionBoard[i][sizeclass.cols - 1] +						actionBoard[i][1] + 
+								 actionBoard[i + 1][sizeclass.cols - 1] + actionBoard[i + 1][0] + actionBoard[i + 1][1];
+					} else if (i == sizeclass.rows - 1) {	// lower boundry
+						nbours = actionBoard[i - 1][j - 1] + actionBoard[i - 1][j] + actionBoard[i - 1][j + 1] +
+									actionBoard[i][j - 1] 							+ actionBoard[i][j + 1] + 
+								 actionBoard[0][j - 1] + actionBoard[0][j] + actionBoard[0][j + 1];
+					} else if (j == sizeclass.cols - 1) {	// right boundry
+						nbours = actionBoard[i - 1][j - 1] + actionBoard[i - 1][j] + actionBoard[i - 1][0] +
+									actionBoard[i][j - 1] 							+ actionBoard[i][0] + 
+								 actionBoard[i + 1][j - 1] + actionBoard[i + 1][j] + actionBoard[i + 1][0];
+					}
+				} else {	// neither corner cell nor edge cell
 					nbours = actionBoard[i - 1][j - 1] + actionBoard[i - 1][j] 	+ actionBoard[i - 1][j + 1] +
 							   actionBoard[i][j - 1] + 							 	actionBoard[i][j + 1] +
 							 actionBoard[i + 1][j - 1] + actionBoard[i + 1][j]	+ actionBoard[i + 1][j + 1];
